@@ -364,7 +364,7 @@ Use the save command with comments in your planning:
 1. **Create Your Own Dialogue**: Use this tutorial as a template
 2. **Add More Callbacks**: Extend functionality with custom callbacks
 3. **Integrate with Game Systems**: Connect to doors, shops, quest systems
-4. **Create Multiple Dialogues**: Different NPCs, different databанks
+4. **Create Multiple Dialogues**: Different NPCs, different databanks
 5. **Share Your Dialogues**: Export and share dialogue trees with others
 
 ## Additional Resources

@@ -13,8 +13,8 @@ local needsSave = false
 local function sendToScreen(msgType, payload)
     if not screen then return end
     local msg = { type = msgType, id = currentNodeId or "", payload = payload }
-    -- In DU, use screen.setScriptInput or similar IPC mechanism
-    -- For now, store in a global that screen can read
+    -- Store in global for screen render script to read
+    -- In production, use appropriate IPC mechanism based on DU API version
     _G.editorMessage = msg
 end
 

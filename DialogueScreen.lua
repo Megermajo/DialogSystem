@@ -45,10 +45,9 @@ end
 
 -- Send message to Editor PB
 function sendToEditor(msgType, payload)
-    -- In actual DU, use screen.setScriptOutput or similar IPC
-    -- For now, trigger via system.print which Editor can read
     local msg = { type = msgType, payload = payload }
     -- Store in global for Editor to read
+    -- In production, use appropriate IPC mechanism based on DU API version
     _G.screenMessage = msg
 end
 
