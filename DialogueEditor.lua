@@ -383,9 +383,10 @@ end
 function tick(timerId)
     if timerId == "autosave" then
         if needsSave then
-            saveTimer = saveTimer + cfg.debounceDelay
-            -- Save when accumulated time exceeds debounce threshold
-            if saveTimer >= cfg.debounceDelay then
+            -- Accumulate time (timer fires every cfg.debounceDelay seconds)
+            saveTimer = saveTimer + 1
+            -- Save after at least 1 timer cycle has passed
+            if saveTimer >= 1 then
                 saveToDatabank()
                 saveTimer = 0
             end
