@@ -6,6 +6,7 @@ local currentNode = nil
 local nodeList = {}
 local errorMsg = nil
 local errorTimer = 0
+local errorStartTime = 0
 local lastClickTime = 0
 local clickDebounce = 0.2  -- 200ms
 
@@ -37,6 +38,7 @@ function processEditorMessage()
     elseif msg.type == "ui:error" then
         if msg.payload and msg.payload.msg then
             errorMsg = msg.payload.msg
+            errorStartTime = getTime()
             errorTimer = 3  -- Show for 3 seconds
         end
     end
@@ -48,8 +50,8 @@ end
 function sendToEditor(msgType, payload)
     local msg = { type = msgType, payload = payload }
     -- Store in global for Editor to read
-    -- Production options: Use screen.getScriptInput() to receive from Programming Board,
-    -- or implement custom databank-based message queue for cross-board communication
+    -- Production: Use global variables (_G) accessible across scripts,
+    -- or implement databank-based message queue for reliable cross-board communication
     _G.screenMessage = msg
 end
 
@@ -146,12 +148,11 @@ function renderEditor()
         setDefaultFillColor(layer, Shape_Text, 1, 1, 1, 1)
         addText(layer, textFont, "Error: " .. errorMsg, rx/2, ry/2 - 15)
         
-        -- Decrement timer using delta time
-        local currentTime = getTime()
-        local deltaTime = currentTime - lastFrameTime
-        errorTimer = errorTimer - deltaTime
-        if errorTimer <= 0 then
+        -- Check elapsed time since error started
+        local elapsed = getTime() - errorStartTime
+        if elapsed >= 3 then
             errorMsg = nil
+            errorTimer = 0
         end
     end
     
@@ -176,7 +177,6 @@ function renderLoop()
     end
     
     mousePressed = pressed
-    lastFrameTime = currentTime
     
     renderEditor()
 end

@@ -160,11 +160,22 @@ end
 
 -- Build presentation content (render script)
 function buildPresentationContent(node)
-    -- Simple render script for displaying dialogue
+    -- Escape special characters to prevent code injection
+    local function escapeString(str)
+        if not str then return "" end
+        -- Escape quotes, newlines, and backslashes
+        str = str:gsub("\\", "\\\\")
+        str = str:gsub('"', '\\"')
+        str = str:gsub("\n", "\\n")
+        str = str:gsub("\r", "\\r")
+        return str
+    end
+    
+    local escapedTitle = escapeString(node.title)
     local answersCode = ""
     for i, ans in ipairs(node.answers) do
-        local escaped = ans.text:gsub('"', '\\"')
-        answersCode = answersCode .. 'addText(layer, textFont, "' .. i .. '. ' .. escaped .. '", 50, ' .. (100 + i * 40) .. ')\n'
+        local escapedText = escapeString(ans.text)
+        answersCode = answersCode .. 'addText(layer, textFont, "' .. i .. '. ' .. escapedText .. '", 50, ' .. (100 + i * 40) .. ')\n'
     end
     
     return [[
@@ -176,7 +187,7 @@ function buildPresentationContent(node)
         local textFont = loadFont('Play', 20)
         
         setDefaultFillColor(layer, Shape_Text, 0.9, 0.9, 1, 1)
-        addText(layer, titleFont, "]] .. node.title:gsub('"', '\\"') .. [[", rx/2, 40)
+        addText(layer, titleFont, "]] .. escapedTitle .. [[", rx/2, 40)
         
         setDefaultFillColor(layer, Shape_Text, 0.7, 0.8, 0.9, 1)
         ]] .. answersCode .. [[

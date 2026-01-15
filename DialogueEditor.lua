@@ -14,8 +14,8 @@ local function sendToScreen(msgType, payload)
     if not screen then return end
     local msg = { type = msgType, id = currentNodeId or "", payload = payload }
     -- Store in global for screen render script to read
-    -- Production options: Use screen.setScriptInput() for render script IPC,
-    -- or implement custom databank-based message queue for cross-board communication
+    -- Production: Use global variables (_G) accessible by render scripts,
+    -- or implement databank-based message queue for reliable cross-board communication
     _G.editorMessage = msg
 end
 
@@ -188,12 +188,12 @@ local function setAnswerText(id, slot, text)
         return false, "Slot must be 1-5"
     end
     
-    -- Warn if creating gaps in answer slots
+    -- Warn if creating gaps in answer slots (filled with empty answers)
     if slotNum > #nodes[id].answers + 1 then
-        system.print("WARNING: Creating gap in answer slots (current: " .. #nodes[id].answers .. ", setting: " .. slotNum .. ")")
+        system.print("WARNING: Skipping slots (current: " .. #nodes[id].answers .. ", setting: " .. slotNum .. "). Empty answers will be created.")
     end
     
-    -- Ensure answers array is large enough
+    -- Ensure answers array is large enough (fill gaps with empty answers)
     while #nodes[id].answers < slotNum do
         table.insert(nodes[id].answers, { text = "", nextId = nil, fn = nil })
     end
@@ -384,6 +384,7 @@ function tick(timerId)
     if timerId == "autosave" then
         if needsSave then
             saveTimer = saveTimer + cfg.debounceDelay
+            -- Save when accumulated time exceeds debounce threshold
             if saveTimer >= cfg.debounceDelay then
                 saveToDatabank()
                 saveTimer = 0
