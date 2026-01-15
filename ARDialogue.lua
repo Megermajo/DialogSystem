@@ -146,8 +146,8 @@ function presentNode(nodeId)
     if screen then
         screen.setRenderScript(content)
     end
-    -- Note: system.setScreen() is for SVG, not render scripts
-    -- For system screen with render script, use screen slot
+    -- Note: For render scripts, always use screen.setRenderScript() on a connected ScreenUnit
+    -- For SVG content, use system.setScreen(svgString) on Programming Board's system screen
     
     -- Debug output
     system.print("=== " .. node.title .. " ===")

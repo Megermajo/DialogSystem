@@ -14,7 +14,8 @@ local function sendToScreen(msgType, payload)
     if not screen then return end
     local msg = { type = msgType, id = currentNodeId or "", payload = payload }
     -- Store in global for screen render script to read
-    -- In production, use appropriate IPC mechanism based on DU API version
+    -- Production options: Use screen.setScriptInput() for render script IPC,
+    -- or implement custom databank-based message queue for cross-board communication
     _G.editorMessage = msg
 end
 
@@ -185,6 +186,11 @@ local function setAnswerText(id, slot, text)
     local slotNum = tonumber(slot)
     if not slotNum or slotNum < 1 or slotNum > 5 then
         return false, "Slot must be 1-5"
+    end
+    
+    -- Warn if creating gaps in answer slots
+    if slotNum > #nodes[id].answers + 1 then
+        system.print("WARNING: Creating gap in answer slots (current: " .. #nodes[id].answers .. ", setting: " .. slotNum .. ")")
     end
     
     -- Ensure answers array is large enough

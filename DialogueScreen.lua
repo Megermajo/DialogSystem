@@ -19,6 +19,7 @@ local statusBarHeight = 40
 local lastMouseX = 0
 local lastMouseY = 0
 local mousePressed = false
+local lastFrameTime = 0
 
 -- Message handling (from Editor PB)
 function processEditorMessage()
@@ -47,7 +48,8 @@ end
 function sendToEditor(msgType, payload)
     local msg = { type = msgType, payload = payload }
     -- Store in global for Editor to read
-    -- In production, use appropriate IPC mechanism based on DU API version
+    -- Production options: Use screen.getScriptInput() to receive from Programming Board,
+    -- or implement custom databank-based message queue for cross-board communication
     _G.screenMessage = msg
 end
 
@@ -144,7 +146,10 @@ function renderEditor()
         setDefaultFillColor(layer, Shape_Text, 1, 1, 1, 1)
         addText(layer, textFont, "Error: " .. errorMsg, rx/2, ry/2 - 15)
         
-        errorTimer = errorTimer - 0.1
+        -- Decrement timer using delta time
+        local currentTime = getTime()
+        local deltaTime = currentTime - lastFrameTime
+        errorTimer = errorTimer - deltaTime
         if errorTimer <= 0 then
             errorMsg = nil
         end
@@ -155,6 +160,7 @@ end
 
 -- Main render loop
 function renderLoop()
+    local currentTime = getTime()
     processEditorMessage()
     
     -- Handle mouse clicks
@@ -163,7 +169,6 @@ function renderLoop()
     
     if pressed and not mousePressed then
         -- Mouse just pressed
-        local currentTime = getTime()
         if currentTime - lastClickTime > clickDebounce then
             handleClick(mx, my)
             lastClickTime = currentTime
@@ -171,6 +176,7 @@ function renderLoop()
     end
     
     mousePressed = pressed
+    lastFrameTime = currentTime
     
     renderEditor()
 end
